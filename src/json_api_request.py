@@ -17,11 +17,10 @@ def _value(value: QueryTypes) -> str:
     if isinstance(value, int):
         return str(value)
 
-    return ','.join(value)
+    return ",".join(value)
 
 
 class JsonApiRequest(Generic[U]):
-
     def __init__(self, cls: Type[U]):
         self.__resource = engine.plural(text=cls.__name__.lower())
         self.__cls: Type[U] = cls
@@ -32,14 +31,14 @@ class JsonApiRequest(Generic[U]):
     def find(self, object_id: int) -> U:
         self.__id = object_id
         response = requests.get(self.__build_url()).json()
-        return self.__cls(response["data"][0]["id"], response["data"][0]["attributes"]["title"])
+        return self.__cls(response["data"])
 
     def all(self) -> List[U]:
         url = self.__build_url()
         response = requests.get(url=url).json()
         response_models = []
-        for model in response['data']:
-            response_models.append(self.__cls(model["id"], model["attributes"]["title"]))
+        for model in response["data"]:
+            response_models.append(self.__cls(model))
         return response_models
 
     def with_params(self, **kwargs: QueryTypes) -> "JsonApiRequest":
@@ -57,7 +56,7 @@ class JsonApiRequest(Generic[U]):
     def __attributes(self, json_response) -> Dict:
         return {
             key: value
-            for key, value in json_response['attributes'].items()
+            for key, value in json_response["attributes"].items()
             if key in set(self.__cls.attributes())
         }
 
@@ -69,6 +68,6 @@ class JsonApiRequest(Generic[U]):
         if self.__id:
             url = urljoin(url, self.__resource)
         if len(self.__params) > 0:
-            url += '?' + urlencode(self.__params)
+            url += "?" + urlencode(self.__params)
 
         return url

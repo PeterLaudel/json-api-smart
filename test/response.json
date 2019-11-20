@@ -8,7 +8,9 @@
     "type": "articles",
     "id": "101",
     "attributes": {
-      "title": "JSON:API paints my bikeshed!"
+      "title": "JSON:API paints my bikeshed!",
+      "author": 1,
+      "some_date": "2019-07-03"
     },
     "relationships": {
       "author": {

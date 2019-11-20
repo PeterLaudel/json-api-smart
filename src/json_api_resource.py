@@ -1,24 +1,24 @@
-from typing import List, Set, Type, TypeVar
+from typing import List, Dict, Type, TypeVar
 from .json_api_request import JsonApiRequest, QueryTypes
 from .attribute import Attribute
 
 H = TypeVar("H")
 
 
-def auto_init(self, *args, **kwargs):
-    for arg_val, arg_name in zip(args, self.__annotations__.keys()):
-        setattr(self, arg_name, arg_val)
-
-    self.__dict__.update(kwargs)
+def get_attribute_entry(response, key):
+    return response["attributes"].get(key, None)
 
 
-class MetaBase(type):
-    def __new__(cls, name, bases, attrs):
-        attrs['__init__'] = auto_init
-        return super(MetaBase, cls).__new__(cls, name, bases, attrs)
-
-
-class JsonApiResource(metaclass=MetaBase):
+class JsonApiResource:
+    def __init__(self, json_api_response=None, **kwargs):
+        if json_api_response is not None:
+            self.id = json_api_response["id"]
+            for key, value in self.attributes().items():
+                attribute = get_attribute_entry(json_api_response, key)
+                attribute_config = getattr(self, key)
+                setattr(self, key, attribute_config.handle_value(attribute))
+        else:
+            self.__dict__.update(kwargs)
 
     @staticmethod
     def base_url() -> str:
@@ -41,9 +41,9 @@ class JsonApiResource(metaclass=MetaBase):
         return JsonApiRequest(cls).with_params(**kwargs)
 
     @classmethod
-    def attributes(cls: Type[H]) -> Set[str]:
+    def attributes(cls: Type[H]) -> Dict[str, type]:
         return {
-            key
-            for key in cls.__annotations__.keys()
-            if isinstance(getattr(cls, key), Attribute)
+            key: value
+            for key, value in cls.__annotations__.items()
+            if type(getattr(cls, key)) is Attribute
         }
