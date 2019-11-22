@@ -30,7 +30,7 @@ class JsonApiRequest(Generic[U]):
 
     def find(self, object_id: int) -> U:
         self.__id = object_id
-        response = requests.get(self.__build_url()).json()
+        response = requests.get(self.__build_find_url()).json()
         return self.__cls(response["data"])
 
     def all(self) -> List[U]:
@@ -63,10 +63,12 @@ class JsonApiRequest(Generic[U]):
     def __add_params(self, key: str, value: str):
         self.__params[key] = value
 
+    def __build_find_url(self):
+        path = self.__resource + "/" + str(self.__id)
+        return urljoin(self.__cls.base_url(), path)
+
     def __build_url(self):
         url = urljoin(self.__cls.base_url(), self.__resource)
-        if self.__id:
-            url = urljoin(url, self.__resource)
         if len(self.__params) > 0:
             url += "?" + urlencode(self.__params)
 

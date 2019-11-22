@@ -12,7 +12,7 @@ def get_attribute_entry(response, key):
 class JsonApiResource:
     def __init__(self, json_api_response=None, **kwargs):
         if json_api_response is not None:
-            self.id = json_api_response["id"]
+            self.id = json_api_response.get("id", None)
             for key, value in self.attributes().items():
                 attribute = get_attribute_entry(json_api_response, key)
                 attribute_config = getattr(self, key)

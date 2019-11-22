@@ -3,6 +3,7 @@ import requests_mock
 from typing import Optional
 from datetime import date
 import os
+import dataclasses
 
 
 class Article(JsonApiResource):
