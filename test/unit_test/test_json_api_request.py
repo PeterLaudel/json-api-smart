@@ -6,7 +6,10 @@ import json
 
 def test_find_returns_build_type_from_request():
     with requests_mock.Mocker() as m:
-        m.get("http://base_url.de/articles/1", text=json.dumps({"data": "huhu"}))
+        m.get(
+            "http://base_url.de/articles/1",
+            text=json.dumps({"data": "huhu"})
+        )
         type_mock = Mock(return_value=Mock(), __name__="Article")
         type_mock.base_url.return_value = "http://base_url.de"
 
@@ -20,7 +23,8 @@ def test_find_returns_build_type_from_request():
 def test_all_returns_build_types_from_request():
     with requests_mock.Mocker() as m:
         m.get(
-            "http://base_url.de/articles", text=json.dumps({"data": ["huhu", "haha"]})
+            "http://base_url.de/articles",
+            text=json.dumps({"data": ["huhu", "haha"]})
         )
         type_mock = Mock(return_value=Mock(), __name__="Article")
         type_mock.base_url.return_value = "http://base_url.de"

@@ -2,6 +2,7 @@ from typing import List, Tuple, Optional, Union, Dict, Generic, Type, TypeVar, S
 import inflect
 import requests
 from urllib.parse import urljoin, urlencode
+from .json_api_url import JsonApiUrl
 
 U = TypeVar("U")
 
@@ -22,20 +23,18 @@ def _value(value: QueryTypes) -> str:
 
 class JsonApiRequest(Generic[U]):
     def __init__(self, cls: Type[U]):
-        self.__resource = engine.plural(text=cls.__name__.lower())
         self.__cls: Type[U] = cls
-        self.__id: Optional[int] = None
-        self.__filter: List[Tuple[str, Union[str, int, List]]] = []
-        self.__params: Dict[str, str] = {}
+        self.__json_api_url = JsonApiUrl(
+            cls.base_url(),
+            engine.plural(text=cls.__name__.lower())
+        )
 
-    def find(self, object_id: int) -> U:
-        self.__id = object_id
-        response = requests.get(self.__build_find_url()).json()
+    def find(self, resource_id: Union[str, int]) -> U:
+        response = requests.get(self.__json_api_url.find(resource_id)).json()
         return self.__cls(response["data"])
 
     def all(self) -> List[U]:
-        url = self.__build_url()
-        response = requests.get(url=url).json()
+        response = requests.get(url=self.__json_api_url.all()).json()
         response_models = []
         for model in response["data"]:
             response_models.append(self.__cls(model))
@@ -43,13 +42,13 @@ class JsonApiRequest(Generic[U]):
 
     def with_params(self, **kwargs: QueryTypes) -> "JsonApiRequest":
         for key, value in kwargs.items():
-            self.__add_params(key, _value(value))
+            self.__json_api_url.add_query(key, value)
 
         return self
 
     def where(self, **kwargs: QueryTypes) -> "JsonApiRequest":
         for key, value in kwargs.items():
-            self.__add_params("filter[{}]".format(key), _value(value))
+            self.__json_api_url.add_filter(key, value)
 
         return self
 
@@ -59,17 +58,3 @@ class JsonApiRequest(Generic[U]):
             for key, value in json_response["attributes"].items()
             if key in set(self.__cls.attributes())
         }
-
-    def __add_params(self, key: str, value: str):
-        self.__params[key] = value
-
-    def __build_find_url(self):
-        path = self.__resource + "/" + str(self.__id)
-        return urljoin(self.__cls.base_url(), path)
-
-    def __build_url(self):
-        url = urljoin(self.__cls.base_url(), self.__resource)
-        if len(self.__params) > 0:
-            url += "?" + urlencode(self.__params)
-
-        return url

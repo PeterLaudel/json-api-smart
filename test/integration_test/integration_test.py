@@ -3,7 +3,6 @@ import requests_mock
 from typing import Optional
 from datetime import date
 import os
-import dataclasses
 
 
 class Article(JsonApiResource):
@@ -25,4 +24,4 @@ def test_response():
         assert article.title == "JSON:API paints my bikeshed!"
         assert article.author == 1
         assert article.some_date == date(2019, 7, 3)
-        assert article.some_optional == None
+        assert article.some_optional is None
