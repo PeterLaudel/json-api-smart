@@ -15,7 +15,6 @@ def _value(value: QueryTypes) -> str:
 
 
 class JsonApiUrl:
-
     def __init__(self, base_url: str, resource: str):
         self.__resource = resource
         self.__base_url = base_url

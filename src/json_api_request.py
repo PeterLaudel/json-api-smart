@@ -1,12 +1,11 @@
-from typing import List, Tuple, Optional, Union, Dict, Generic, Type, TypeVar, Sequence
+from typing import List, Union, Dict, Generic, Type, TypeVar, Sequence
 import inflect
 import requests
-from urllib.parse import urljoin, urlencode
 from .json_api_url import JsonApiUrl
+from .json_api_response import JsonApiResponse
 
 U = TypeVar("U")
 
-engine = inflect.engine()
 
 QueryTypes = Union[str, int, Sequence[str], Sequence[int]]
 
@@ -24,20 +23,19 @@ def _value(value: QueryTypes) -> str:
 class JsonApiRequest(Generic[U]):
     def __init__(self, cls: Type[U]):
         self.__cls: Type[U] = cls
-        self.__json_api_url = JsonApiUrl(
-            cls.base_url(),
-            engine.plural(text=cls.__name__.lower())
-        )
+        self.__json_api_url = JsonApiUrl(cls.base_url(), cls.resource_name())
 
     def find(self, resource_id: Union[str, int]) -> U:
         response = requests.get(self.__json_api_url.find(resource_id)).json()
-        return self.__cls(response["data"])
+        return self.__cls(self.__json_api_response(response["data"], response))
 
     def all(self) -> List[U]:
         response = requests.get(url=self.__json_api_url.all()).json()
         response_models = []
         for model in response["data"]:
-            response_models.append(self.__cls(model))
+            response_models.append(
+                self.__cls(self.__json_api_response(model, response))
+            )
         return response_models
 
     def with_params(self, **kwargs: QueryTypes) -> "JsonApiRequest":
@@ -58,3 +56,6 @@ class JsonApiRequest(Generic[U]):
             for key, value in json_response["attributes"].items()
             if key in set(self.__cls.attributes())
         }
+
+    def __json_api_response(self, data, response) -> JsonApiResponse:
+        return JsonApiResponse(data=data, included=response.get("included", None))

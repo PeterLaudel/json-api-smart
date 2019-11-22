@@ -4,9 +4,14 @@ from datetime import date
 
 def test_handle_value_returns_default_if_value_is_none():
     test_attribute = attribute(default="hello")
-    assert test_attribute.handle_value(None) == "hello"
+    assert test_attribute.handle_value(None, str) == "hello"
 
 
 def test_handle_value_return_decoded_value():
     test_attribute = attribute(decoder=date.fromisoformat)
-    assert test_attribute.handle_value("2019-07-04") == date(2019, 7, 4)
+    assert test_attribute.handle_value("2019-07-04", date) == date(2019, 7, 4)
+
+
+def test_handle_value_returns_plain_value_if():
+    test_attribute = attribute()
+    assert test_attribute.handle_value("huhu", str) == "huhu"
