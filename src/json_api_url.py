@@ -11,7 +11,7 @@ def _value(value: QueryTypes) -> str:
     if isinstance(value, int):
         return str(value)
 
-    return ",".join(value)
+    return ",".join(map(lambda v: str(v), value))
 
 
 class JsonApiUrl:
