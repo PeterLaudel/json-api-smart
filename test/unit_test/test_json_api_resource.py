@@ -122,3 +122,18 @@ def test_builds_resource_with_relationship():
     )
 
     assert result.relationship1.id == "42"
+
+
+def test_build_new_resource():
+    class Resource(BaseResource):
+        id: str = resource_id()
+        attribute1: str = attribute()
+
+    result = Resource(id="42", attribute1="value")
+
+    assert result.id == "42"
+    assert result.attribute1 == "value"
+
+
+
+
