@@ -2,7 +2,7 @@ from typing import List, Union, Dict, Generic, Type, TypeVar, Sequence
 import inflect
 import requests
 from .json_api_url import JsonApiUrl
-from .json_api_response import JsonApiCallContext
+from .json_api_call_context import JsonApiCallContext
 
 U = TypeVar("U")
 

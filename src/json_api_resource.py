@@ -2,7 +2,7 @@ from typing import List, Dict, Type, TypeVar, Optional
 from .json_api_request import JsonApiRequest, QueryTypes
 from .attribute import Attribute, MISSING
 from .relationship import Relationship
-from .json_api_response import JsonApiCallContext
+from .json_api_call_context import JsonApiCallContext
 import inflect
 
 H = TypeVar("H")

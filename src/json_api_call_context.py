@@ -13,8 +13,8 @@ class JsonApiCallContext:
     def get_attribute(self, key):
         return self.__data["attributes"].get(key, MISSING)
 
-    def get_relationship(self, key) -> Dict:
-        return self.__data["relationships"][key]
+    def get_relationship(self, key) -> Optional[Dict]:
+        return self.__data["relationships"].get(key, None)
 
     def find_in_included(self, resource_type: str, resource_id: str) -> Optional[Dict]:
         for include in self.__included:

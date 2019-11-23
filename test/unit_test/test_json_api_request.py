@@ -1,7 +1,6 @@
 from unittest.mock import Mock, patch
 import requests_mock
 from src.json_api_request import JsonApiRequest
-from src.json_api_response import JsonApiCallContext
 import json
 
 
