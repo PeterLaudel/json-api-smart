@@ -8,6 +8,6 @@ install:
 # command to run tests
 script:
   - pytest
-  - coverage run --source=src pytest
+  - coverage run --source=src -m pytest
 after_success:
   - coveralls
