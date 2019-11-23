@@ -1,3 +1,5 @@
+import pytest
+from unittest.mock import patch
 from src import JsonApiResource, attribute, resource_id, relationship
 from src.json_api_call_context import JsonApiCallContext
 
@@ -6,6 +8,43 @@ class BaseResource(JsonApiResource):
     @staticmethod
     def base_url() -> str:
         return "http://some.url"
+
+
+def test_base_url_raises_not_implemented():
+    with pytest.raises(NotImplementedError, match=r"Implement this .*"):
+        JsonApiResource.base_url()
+
+
+@patch("src.json_api_resource.JsonApiRequest")
+def test_find(json_api_request_mock):
+    BaseResource.find(1)
+
+    json_api_request_mock.return_value.find.assert_called_once_with(resource_id=1)
+    json_api_request_mock.assert_called_once_with(BaseResource)
+
+
+@patch("src.json_api_resource.JsonApiRequest")
+def test_all(json_api_request_mock):
+    BaseResource.all()
+
+    json_api_request_mock.return_value.all.assert_called_once()
+    json_api_request_mock.assert_called_once_with(BaseResource)
+
+
+@patch("src.json_api_resource.JsonApiRequest")
+def test_with_params(json_api_request_mock):
+    BaseResource.with_params(a="b", c="d")
+
+    json_api_request_mock.return_value.with_params.assert_called_once_with(a="b", c="d")
+    json_api_request_mock.assert_called_once_with(BaseResource)
+
+
+@patch("src.json_api_resource.JsonApiRequest")
+def test_where(json_api_request_mock):
+    BaseResource.where(a="b", c="d")
+
+    json_api_request_mock.return_value.where.assert_called_once_with(a="b", c="d")
+    json_api_request_mock.assert_called_once_with(BaseResource)
 
 
 def test_attributes():

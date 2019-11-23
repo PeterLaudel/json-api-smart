@@ -53,7 +53,7 @@ class JsonApiResource:
 
     @staticmethod
     def base_url() -> str:
-        raise NotImplemented("Implement this in your base class")
+        raise NotImplementedError("Implement this in your base class")
 
     @classmethod
     def find(cls: Type[H], resource_id: int) -> H:
@@ -69,7 +69,7 @@ class JsonApiResource:
 
     @classmethod
     def where(cls: Type[H], **kwargs: QueryTypes):
-        return JsonApiRequest(cls).with_params(**kwargs)
+        return JsonApiRequest(cls).where(**kwargs)
 
     @classmethod
     def attributes(cls: Type[H]) -> Dict[str, type]:
