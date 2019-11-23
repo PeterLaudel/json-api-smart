@@ -1,9 +1,9 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from .attribute import MISSING
 
 
 class JsonApiCallContext:
-    def __init__(self, data: Dict, included: Optional[Dict] = None):
+    def __init__(self, data: Dict, included: Optional[List[Dict]] = None):
         self.__data = data
         self.__included = included
 
@@ -17,6 +17,9 @@ class JsonApiCallContext:
         return self.__data["relationships"].get(key, None)
 
     def find_in_included(self, resource_type: str, resource_id: str) -> Optional[Dict]:
+        if self.__included is None:
+            return None
+
         for include in self.__included:
             if include["type"] == resource_type and include["id"] == resource_id:
                 return include

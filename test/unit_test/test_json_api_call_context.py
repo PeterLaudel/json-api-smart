@@ -33,6 +33,11 @@ def test_find_in_included():
     assert json_api_call_context.find_in_included("articles", "100") == include
 
 
+def test_find_in_included_returns_none_if_included_not_set():
+    json_api_call_context = JsonApiCallContext(data={})
+    assert json_api_call_context.find_in_included("articles", "100") is None
+
+
 def test_find_in_include_returns_none_not_found():
     include = {"type": "articles", "id": "100", "attributes": {"attribute1": "value1"}}
     json_api_call_context = JsonApiCallContext(data={}, included=[include])

@@ -1,13 +1,22 @@
 from typing import List, Dict, Type, TypeVar, Optional
 from .json_api_request import JsonApiRequest, QueryTypes
-from .attribute import Attribute, MISSING
+from .attribute import Attribute
 from .relationship import Relationship
 from .json_api_call_context import JsonApiCallContext
 import inflect
+import re
 
-H = TypeVar("H")
+H = TypeVar("H", bound="JsonApiResource")
 
 engine = inflect.engine()
+
+first_cap_re = re.compile("(.)([A-Z][a-z]+)")
+all_cap_re = re.compile("([a-z0-9])([A-Z])")
+
+
+def convert(name):
+    s1 = first_cap_re.sub(r"\1-\2", name)
+    return all_cap_re.sub(r"\1-\2", s1).lower()
 
 
 class JsonApiResource:
@@ -32,18 +41,23 @@ class JsonApiResource:
     def __add_relationships(self, json_api_call_context: JsonApiCallContext):
         for key, value in self.relationships().items():
             relationship_entry = json_api_call_context.get_relationship(key)
+            if relationship_entry is None:
+                continue
             include = json_api_call_context.find_in_included(
                 value.resource_name(), relationship_entry["data"]["id"]
             )
-            setattr(self, key, value(JsonApiCallContext(data=include)))
+            if include is None:
+                setattr(self, key, None)
+            else:
+                setattr(self, key, value(JsonApiCallContext(data=include)))
 
     @staticmethod
     def base_url() -> str:
-        return "http://baseurl.com"
+        raise NotImplemented("Implement this in your base class")
 
     @classmethod
-    def find(cls: Type[H], object_id: int) -> H:
-        return JsonApiRequest(cls).find(object_id=object_id)
+    def find(cls: Type[H], resource_id: int) -> H:
+        return JsonApiRequest(cls).find(resource_id=resource_id)
 
     @classmethod
     def all(cls: Type[H]) -> List[H]:
@@ -66,7 +80,7 @@ class JsonApiResource:
         }
 
     @classmethod
-    def relationships(cls: Type[H]) -> Dict[str, type]:
+    def relationships(cls: Type[H]) -> Dict[str, H]:
         return {
             key: value
             for key, value in cls.__annotations__.items()
@@ -75,11 +89,4 @@ class JsonApiResource:
 
     @classmethod
     def resource_name(cls: Type[H]) -> str:
-        return engine.plural(cls.__name__.lower())
-
-    def __eq__(self, other):
-        for key in self.attributes().keys():
-            if getattr(self, key) != getattr(other, key):
-                return False
-
-        return True
+        return engine.plural(convert(cls.__name__))

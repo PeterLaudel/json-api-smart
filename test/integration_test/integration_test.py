@@ -5,14 +5,20 @@ from datetime import date
 import os
 
 
-class People(JsonApiResource):
+class BaseResource(JsonApiResource):
+    @classmethod
+    def base_url(cls) -> str:
+        return "http://baseurl.com/"
+
+
+class People(BaseResource):
     id: str = resource_id()
     first_name: str = attribute()
     last_name: str = attribute()
     twitter: str = attribute()
 
 
-class Article(JsonApiResource):
+class Article(BaseResource):
     id: str = resource_id()
     title: str = attribute()
     number: int = attribute()
@@ -34,6 +40,7 @@ def test_response():
         assert article.number == 1
         assert article.some_date == date(2019, 7, 3)
         assert article.some_optional is None
-        assert article.author == People(
-            id="9", first_name="Dan", last_name="Gebhardt", twitter="dgeb"
-        )
+        assert article.author.id == "9"
+        assert article.author.first_name == "Dan"
+        assert article.author.last_name == "Gebhardt"
+        assert article.author.twitter == "dgeb"

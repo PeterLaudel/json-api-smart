@@ -1,5 +1,4 @@
-from typing import List, Union, Dict, Generic, Type, TypeVar, Sequence
-import inflect
+from typing import List, Union, Generic, Type, TypeVar, Sequence
 import requests
 from .json_api_url import JsonApiUrl
 from .json_api_call_context import JsonApiCallContext

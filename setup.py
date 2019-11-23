@@ -10,5 +10,5 @@ setup(
     author_email="",
     description="",
     install_requires=["requests", "inflect"],
-    extras_require={"dev": ["pytest", "requests_mock", "coverage"]},
+    extras_require={"dev": ["pytest", "requests_mock", "coverage", "mypy"]},
 )
