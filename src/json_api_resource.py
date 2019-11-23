@@ -2,7 +2,7 @@ from typing import List, Dict, Type, TypeVar, Optional
 from .json_api_request import JsonApiRequest, QueryTypes
 from .attribute import Attribute, MISSING
 from .relationship import Relationship
-from .json_api_response import JsonApiResponse
+from .json_api_response import JsonApiCallContext
 import inflect
 
 H = TypeVar("H")
@@ -10,62 +10,32 @@ H = TypeVar("H")
 engine = inflect.engine()
 
 
-def get_attribute_entry(data, key):
-    return data["attributes"].get(key, None)
-
-
-def get_relationship_entry(data, key):
-    return data["relationships"].get(key, None)
-
-
-def find_in_included(resource_type: str, resource_id: str, included):
-    for include in included:
-        if include["type"] == resource_type and include["id"] == resource_id:
-            return include
-
-
-def find_attribute(
-    data: Dict, key: str, attribute_config: Attribute, attribute_type: Type[H]
-) -> H:
-    data_attribute = get_attribute_entry(data, key)
-
-    if data_attribute is None and attribute_config.default is not MISSING:
-        return attribute_config.default
-
-    if attribute_config.decoder is not None:
-        return attribute_config.decoder(data_attribute)
-
-    return attribute_type(data_attribute)
-
-
-def find_relationship(
-    json_api_response: JsonApiResponse, key: str, relationship_type: Type[H],
-) -> H:
-    data_entry = get_relationship_entry(json_api_response.data, key)
-    include = find_in_included(
-        relationship_type.resource_name(),
-        data_entry['data']["id"],
-        json_api_response.included
-    )
-
-    return relationship_type(JsonApiResponse(data=include))
-
-
 class JsonApiResource:
-    def __init__(self, json_api_response: Optional[JsonApiResponse] = None, **kwargs):
-        if json_api_response is not None:
-            self.id = json_api_response.data.get("id", None)
-            for key, value in self.attributes().items():
-                attribute = find_attribute(
-                    json_api_response.data, key, getattr(self, key), value
-                )
-                setattr(self, key, attribute)
-
-            for key, value in self.relationships().items():
-                relationship = find_relationship(json_api_response, key, value)
-                setattr(self, key, relationship)
+    def __init__(
+        self, json_api_call_context: Optional[JsonApiCallContext] = None, **kwargs
+    ):
+        if json_api_call_context is not None:
+            self.id = json_api_call_context.get_id()
+            self.__add_attributes(json_api_call_context)
+            self.__add_relationships(json_api_call_context)
         else:
             self.__dict__.update(kwargs)
+
+    def __add_attributes(self, json_api_call_context: JsonApiCallContext):
+        for key, value in self.attributes().items():
+            attribute_config = getattr(self, key)
+            attribute = attribute_config.handle_value(
+                json_api_call_context.get_attribute(key), value
+            )
+            setattr(self, key, attribute)
+
+    def __add_relationships(self, json_api_call_context: JsonApiCallContext):
+        for key, value in self.relationships().items():
+            relationship_entry = json_api_call_context.get_relationship(key)
+            include = json_api_call_context.find_in_included(
+                value.resource_name(), relationship_entry["data"]["id"]
+            )
+            setattr(self, key, value(JsonApiCallContext(data=include)))
 
     @staticmethod
     def base_url() -> str:

@@ -1,11 +1,12 @@
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 import requests_mock
 from src.json_api_request import JsonApiRequest
-from src.json_api_response import JsonApiResponse
+from src.json_api_response import JsonApiCallContext
 import json
 
 
-def test_find_returns_build_type_from_request():
+@patch("src.json_api_request.JsonApiCallContext")
+def test_find_returns_build_type_from_request(json_api_call_context_mock):
     with requests_mock.Mocker() as m:
         m.get("http://base_url.de/articles/1", text=json.dumps({"data": "huhu"}))
         type_mock = Mock(return_value=Mock())
@@ -16,10 +17,11 @@ def test_find_returns_build_type_from_request():
         result = test_json_api_url.find(1)
 
         assert result == type_mock.return_value
-        type_mock.assert_called_once_with(JsonApiResponse(data="huhu"))
+        type_mock.assert_called_once_with(json_api_call_context_mock.return_value)
 
 
-def test_all_returns_build_types_from_request():
+@patch("src.json_api_request.JsonApiCallContext")
+def test_all_returns_build_types_from_request(json_api_call_context_mock):
     with requests_mock.Mocker() as m:
         m.get(
             "http://base_url.de/articles", text=json.dumps({"data": ["huhu", "haha"]})
@@ -33,8 +35,8 @@ def test_all_returns_build_types_from_request():
 
         assert result == [type_mock.return_value, type_mock.return_value]
         assert type_mock.call_count == 2
-        type_mock.assert_any_call(JsonApiResponse(data="huhu"))
-        type_mock.assert_any_call(JsonApiResponse(data="haha"))
+        type_mock.assert_any_call(json_api_call_context_mock.return_value)
+        type_mock.assert_any_call(json_api_call_context_mock.return_value)
 
 
 def test_all_returns_build_types_with_filter_parameter():

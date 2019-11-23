@@ -2,22 +2,12 @@ from typing import List, Union, Dict, Generic, Type, TypeVar, Sequence
 import inflect
 import requests
 from .json_api_url import JsonApiUrl
-from .json_api_response import JsonApiResponse
+from .json_api_response import JsonApiCallContext
 
 U = TypeVar("U")
 
 
 QueryTypes = Union[str, int, Sequence[str], Sequence[int]]
-
-
-def _value(value: QueryTypes) -> str:
-    if isinstance(value, str):
-        return value
-
-    if isinstance(value, int):
-        return str(value)
-
-    return ",".join(value)
 
 
 class JsonApiRequest(Generic[U]):
@@ -50,12 +40,6 @@ class JsonApiRequest(Generic[U]):
 
         return self
 
-    def __attributes(self, json_response) -> Dict:
-        return {
-            key: value
-            for key, value in json_response["attributes"].items()
-            if key in set(self.__cls.attributes())
-        }
-
-    def __json_api_response(self, data, response) -> JsonApiResponse:
-        return JsonApiResponse(data=data, included=response.get("included", None))
+    @staticmethod
+    def __json_api_response(data, response) -> JsonApiCallContext:
+        return JsonApiCallContext(data=data, included=response.get("included", None))

@@ -14,7 +14,7 @@ class Attribute:
         self.default = default
 
     def handle_value(self, value: Union[str, int, Dict], value_type: Type[T]) -> T:
-        if value is None and self.default is not MISSING:
+        if value is MISSING and self.default is not MISSING:
             return self.default
 
         if self.decoder is not None:

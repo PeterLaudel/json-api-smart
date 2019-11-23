@@ -1,10 +1,11 @@
 from src import attribute
+from src.attribute import MISSING
 from datetime import date
 
 
 def test_handle_value_returns_default_if_value_is_none():
     test_attribute = attribute(default="hello")
-    assert test_attribute.handle_value(None, str) == "hello"
+    assert test_attribute.handle_value(MISSING, str) == "hello"
 
 
 def test_handle_value_return_decoded_value():
