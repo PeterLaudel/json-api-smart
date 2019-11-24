@@ -54,7 +54,7 @@ class JsonApiResource:
             if include is not None:
                 setattr(self, key, value(JsonApiCallContext(data=include)))
             else:
-                setattr(self, key, value(id=relationship_entry['data']["id"]))
+                setattr(self, key, value(id=relationship_entry["data"]["id"]))
 
     @staticmethod
     def base_url() -> str:
