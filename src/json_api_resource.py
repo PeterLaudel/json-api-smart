@@ -43,11 +43,17 @@ class JsonApiResource:
         for key, value in self.relationships().items():
             relationship_entry = json_api_call_context.get_relationship(key)
             if relationship_entry is None:
+                raise ValueError("The relationship %s is not missing" % key)
+            if relationship_entry["data"] is None:
                 if is_optional(value):
                     setattr(self, key, None)
                     continue
                 else:
-                    raise ValueError("The relationship %s is not optional" % key)
+                    raise ValueError(
+                        "The relationship %s data entry is 'None' but not optional"
+                        % key
+                    )
+
             include = json_api_call_context.find_in_included(
                 value.resource_name(), relationship_entry["data"]["id"]
             )
