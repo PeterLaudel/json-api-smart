@@ -123,7 +123,6 @@ def test_builds_resource_with_relationship_not_in_included():
     )
 
     assert result.relationship1.id == "42"
-    assert hasattr(result,'attribute1') is False
 
 
 def test_build_resource_with_relationship():
