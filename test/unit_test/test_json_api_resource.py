@@ -1,4 +1,5 @@
 import pytest
+from typing import Optional
 from unittest.mock import patch
 from src import JsonApiResource, attribute, resource_id, relationship
 from src.json_api_call_context import JsonApiCallContext
@@ -101,7 +102,7 @@ def test_builds_resource_with_attributes():
     assert result.attribute1 == "value"
 
 
-def test_builds_resource_with_relationship():
+def test_builds_resource_with_relationship_not_in_included():
     class Relationship(BaseResource):
         id: str = resource_id()
 
@@ -116,12 +117,86 @@ def test_builds_resource_with_relationship():
                 "relationships": {
                     "relationship1": {"data": {"id": "42", "type": "relationships"}}
                 },
-            },
-            included=[{"id": "42", "type": "relationships"}],
+            }
         )
     )
 
     assert result.relationship1.id == "42"
+
+
+def test_build_resource_with_relationship():
+    class Relationship(BaseResource):
+        id: str = resource_id()
+        attribute1: str = attribute()
+
+    class Resource(BaseResource):
+        id: str = resource_id()
+        relationship1: Relationship = relationship()
+
+    result = Resource(
+        json_api_call_context=JsonApiCallContext(
+            data={
+                "id": "100",
+                "relationships": {
+                    "relationship1": {"data": {"id": "42", "type": "relationships"}}
+                },
+            },
+            included=[
+                {
+                    "id": "42",
+                    "type": "relationships",
+                    "attributes": {"attribute1": "value"},
+                }
+            ],
+        )
+    )
+
+    assert result.relationship1.id == "42"
+    assert result.relationship1.attribute1 == "value"
+
+
+def test_build_resource_with_optional_relationship():
+    class Relationship(BaseResource):
+        id: str = resource_id()
+
+    class Resource(BaseResource):
+        id: str = resource_id()
+        relationship1: Optional[Relationship] = relationship()
+
+    result = Resource(
+        json_api_call_context=JsonApiCallContext(
+            data={
+                "id": "100",
+                "relationships": {
+                    "relationship1": None
+                },
+            }
+        )
+    )
+
+    assert result.relationship1 is None
+
+
+def test_build_resource_raises_if_relationship_is_not_optional():
+    class Relationship(BaseResource):
+        id: str = resource_id()
+
+    class Resource(BaseResource):
+        id: str = resource_id()
+        relationship1: Relationship = relationship()
+
+    with pytest.raises(ValueError, match=r".* relationship1 .*"):
+        Resource(
+            json_api_call_context=JsonApiCallContext(
+                data={
+                    "id": "100",
+                    "relationships": {
+                        "relationship1": None
+                    },
+                }
+            )
+        )
+
 
 
 def test_build_new_resource():
@@ -133,7 +208,3 @@ def test_build_new_resource():
 
     assert result.id == "42"
     assert result.attribute1 == "value"
-
-
-
-

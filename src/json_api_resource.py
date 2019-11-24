@@ -3,6 +3,7 @@ from .json_api_request import JsonApiRequest, QueryTypes
 from .attribute import Attribute
 from .relationship import Relationship
 from .json_api_call_context import JsonApiCallContext
+from .type_utils import is_optional
 import inflect
 import re
 
@@ -42,14 +43,18 @@ class JsonApiResource:
         for key, value in self.relationships().items():
             relationship_entry = json_api_call_context.get_relationship(key)
             if relationship_entry is None:
-                continue
+                if is_optional(value):
+                    setattr(self, key, None)
+                    continue
+                else:
+                    raise ValueError("The relationship %s is not optional" % key)
             include = json_api_call_context.find_in_included(
                 value.resource_name(), relationship_entry["data"]["id"]
             )
-            if include is None:
-                setattr(self, key, None)
-            else:
+            if include is not None:
                 setattr(self, key, value(JsonApiCallContext(data=include)))
+            else:
+                setattr(self, key, value(id=relationship_entry['data']["id"]))
 
     @staticmethod
     def base_url() -> str:

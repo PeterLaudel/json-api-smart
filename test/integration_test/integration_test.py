@@ -1,6 +1,6 @@
 from src import JsonApiResource, resource_id, attribute, relationship
 import requests_mock
-from typing import Optional
+from typing import Optional, List
 from datetime import date
 import os
 
@@ -18,11 +18,17 @@ class People(BaseResource):
     twitter: str = attribute()
 
 
+class Comment(BaseResource):
+    id: str = resource_id()
+    body: str = attribute()
+
+
 class Article(BaseResource):
     id: str = resource_id()
     title: str = attribute()
     number: int = attribute()
     some_date: date = attribute(decoder=date.fromisoformat, encoder=date.isoformat)
+    # comments: List[Comment] = relationship()
     some_optional: Optional[int] = attribute(default=None)
     author: People = relationship()
 
