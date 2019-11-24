@@ -22,7 +22,7 @@ def convert(name):
 
 class JsonApiResource:
     def __init__(
-        self, json_api_call_context: Optional[JsonApiCallContext] = None, **kwargs
+            self, json_api_call_context: Optional[JsonApiCallContext] = None, **kwargs
     ):
         if json_api_call_context is not None:
             self.id = json_api_call_context.get_id()
@@ -61,6 +61,11 @@ class JsonApiResource:
                 setattr(self, key, value(JsonApiCallContext(data=include)))
             else:
                 setattr(self, key, value(id=relationship_entry["data"]["id"]))
+                self.__delete_attributes()
+
+    def __delete_attributes(self):
+        for key in self.attributes().keys():
+            delattr(self, key)
 
     @staticmethod
     def base_url() -> str:

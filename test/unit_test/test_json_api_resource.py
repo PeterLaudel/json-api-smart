@@ -105,6 +105,7 @@ def test_builds_resource_with_attributes():
 def test_builds_resource_with_relationship_not_in_included():
     class Relationship(BaseResource):
         id: str = resource_id()
+        attribute1: str = attribute()
 
     class Resource(BaseResource):
         id: str = resource_id()
@@ -122,6 +123,7 @@ def test_builds_resource_with_relationship_not_in_included():
     )
 
     assert result.relationship1.id == "42"
+    assert hasattr(result,'attribute1') is False
 
 
 def test_build_resource_with_relationship():
