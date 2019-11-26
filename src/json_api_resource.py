@@ -55,14 +55,6 @@ class JsonApiResource(JsonApiResourceBase):
     def attributes(cls: Type[H]) -> List[str]:
         return [
             key
-            for key, value in cls.__annotations__.items()
-            if type(getattr(cls, key)) is Attribute
-        ]
-
-    @classmethod
-    def attributes(cls: Type[H]) -> List[str]:
-        return [
-            key
             for key in cls.__annotations__.keys()
             if type(getattr(cls, key)) is Attribute
         ]
