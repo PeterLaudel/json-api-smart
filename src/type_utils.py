@@ -1,4 +1,4 @@
-from typing import Type, Union
+from typing import Type, Union, List
 
 
 def is_generic(type_: Type) -> bool:
@@ -17,6 +17,16 @@ def is_optional(some_type: Type) -> bool:
         return False
 
     if type(None) in some_type.__args__:
+        return True
+
+    return False
+
+
+def is_list(some_type: Type) -> bool:
+    if is_generic(some_type) is False:
+        return False
+
+    if some_type.__origin__ == list:
         return True
 
     return False

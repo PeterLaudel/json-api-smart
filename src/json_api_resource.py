@@ -3,7 +3,8 @@ from .json_api_request import JsonApiRequest, QueryTypes
 from .attribute import Attribute
 from .relationship import Relationship
 from .json_api_call_context import JsonApiCallContext
-from .type_utils import is_optional
+from .json_api_resource_builder import build_resource
+from .json_api_resource_base import JsonApiResourceBase
 import inflect
 import re
 
@@ -20,49 +21,14 @@ def convert(name):
     return all_cap_re.sub(r"\1-\2", s1).lower()
 
 
-class JsonApiResource:
+class JsonApiResource(JsonApiResourceBase):
     def __init__(
-            self,
-            json_api_call_context: Optional[JsonApiCallContext] = None,
-            **kwargs
+        self, json_api_call_context: Optional[JsonApiCallContext] = None, **kwargs
     ):
         if json_api_call_context is not None:
-            self.id = json_api_call_context.get_id()
-            self.__add_attributes(json_api_call_context)
-            self.__add_relationships(json_api_call_context)
+            build_resource(json_api_call_context, self)
         else:
             self.__dict__.update(kwargs)
-
-    def __add_attributes(self, json_api_call_context: JsonApiCallContext):
-        for key, value in self.attributes().items():
-            attribute_config = getattr(self, key)
-            attribute = attribute_config.handle_value(
-                json_api_call_context.get_attribute(key), value
-            )
-            setattr(self, key, attribute)
-
-    def __add_relationships(self, json_api_call_context: JsonApiCallContext):
-        for key, value in self.relationships().items():
-            relationship_entry = json_api_call_context.get_relationship(key)
-            if relationship_entry is None:
-                raise ValueError("The relationship %s is not missing" % key)
-            if relationship_entry["data"] is None:
-                if is_optional(value):
-                    setattr(self, key, None)
-                    continue
-                else:
-                    raise ValueError(
-                        "The relationship %s data entry is 'None' but not optional"
-                        % key
-                    )
-
-            include = json_api_call_context.find_in_included(
-                value.resource_name(), relationship_entry["data"]["id"]
-            )
-            if include is not None:
-                setattr(self, key, value(JsonApiCallContext(data=include)))
-            else:
-                setattr(self, key, value(id=relationship_entry["data"]["id"]))
 
     @staticmethod
     def base_url() -> str:
@@ -85,20 +51,20 @@ class JsonApiResource:
         return JsonApiRequest(cls).where(**kwargs)
 
     @classmethod
-    def attributes(cls: Type[H]) -> Dict[str, type]:
-        return {
-            key: value
+    def attributes(cls: Type[H]) -> List[str]:
+        return [
+            key
             for key, value in cls.__annotations__.items()
             if type(getattr(cls, key)) is Attribute
-        }
+        ]
 
     @classmethod
-    def relationships(cls: Type[H]) -> Dict[str, H]:
-        return {
-            key: value
+    def relationships(cls: Type[H]) -> List[str]:
+        return [
+            key
             for key, value in cls.__annotations__.items()
             if type(getattr(cls, key)) is Relationship
-        }
+        ]
 
     @classmethod
     def resource_name(cls: Type[H]) -> str:

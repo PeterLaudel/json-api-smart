@@ -28,7 +28,7 @@ class Article(BaseResource):
     title: str = attribute()
     number: int = attribute()
     some_date: date = attribute(decoder=date.fromisoformat, encoder=date.isoformat)
-    # comments: List[Comment] = relationship()
+    comments: List[Comment] = relationship()
     some_optional: Optional[int] = attribute(default=None)
     author: People = relationship()
 
@@ -50,3 +50,7 @@ def test_response():
         assert article.author.first_name == "Dan"
         assert article.author.last_name == "Gebhardt"
         assert article.author.twitter == "dgeb"
+        assert article.comments[0].id == "5"
+        assert article.comments[0].body == "First!"
+        assert article.comments[1].id == "12"
+        assert article.comments[1].body == "I like XML better"

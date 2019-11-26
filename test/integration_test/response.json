@@ -22,6 +22,16 @@
           "type": "peoples",
           "id": "9"
         }
+      },
+      "comments": {
+        "links": {
+          "self": "http://example.com/articles/1/relationships/comments",
+          "related": "http://example.com/articles/1/comments"
+        },
+        "data": [
+          { "type": "comments", "id": "5" },
+          { "type": "comments", "id": "12" }
+        ]
       }
     },
     "links": {
