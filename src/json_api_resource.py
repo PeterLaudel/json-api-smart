@@ -1,17 +1,21 @@
-from typing import List, Dict, Type, TypeVar, Optional
-from .json_api_request import JsonApiRequest, QueryTypes
+from typing import List, Type, TypeVar, Optional
+from inflect import engine as create_engine
+import re
+
 from .attribute import Attribute
 from .relationship import Relationship
 from .resource_id import ResourceId
+
+from .json_api_request import JsonApiRequest
 from .json_api_call_context import JsonApiCallContext
 from .json_api_resource_builder import build_resource
 from .json_api_resource_base import JsonApiResourceBase
-import inflect
-import re
 
-H = TypeVar("H", bound="JsonApiResource")
+from .types import QueryTypes
 
-engine = inflect.engine()
+H = TypeVar("H", bound=JsonApiResourceBase)
+
+engine = create_engine()
 
 first_cap_re = re.compile("(.)([A-Z][a-z]+)")
 all_cap_re = re.compile("([a-z0-9])([A-Z])")
@@ -36,23 +40,25 @@ class JsonApiResource(JsonApiResourceBase):
         raise NotImplementedError("Implement this in your base class")
 
     @classmethod
-    def find(cls: Type[H], resource_id: int) -> H:
+    def find(cls: Type[JsonApiResourceBase], resource_id: int) -> JsonApiResourceBase:
         return JsonApiRequest(cls).find(resource_id=resource_id)
 
     @classmethod
-    def all(cls: Type[H]) -> List[H]:
+    def all(cls: Type[JsonApiResourceBase]) -> List[JsonApiResourceBase]:
         return JsonApiRequest(cls).all()
 
     @classmethod
-    def with_params(cls: Type[H], **kwargs: QueryTypes) -> JsonApiRequest:
+    def with_params(
+        cls: Type[JsonApiResourceBase], **kwargs: QueryTypes
+    ) -> JsonApiRequest:
         return JsonApiRequest(cls).with_params(**kwargs)
 
     @classmethod
-    def where(cls: Type[H], **kwargs: QueryTypes):
+    def where(cls: Type[JsonApiResourceBase], **kwargs: QueryTypes) -> JsonApiRequest:
         return JsonApiRequest(cls).where(**kwargs)
 
     @classmethod
-    def attributes(cls: Type[H]) -> List[str]:
+    def attributes(cls: Type[JsonApiResourceBase]) -> List[str]:
         return [
             key
             for key in cls.__annotations__.keys()
@@ -60,7 +66,7 @@ class JsonApiResource(JsonApiResourceBase):
         ]
 
     @classmethod
-    def relationships(cls: Type[H]) -> List[str]:
+    def relationships(cls: Type[JsonApiResourceBase]) -> List[str]:
         return [
             key
             for key in cls.__annotations__.keys()
@@ -68,7 +74,7 @@ class JsonApiResource(JsonApiResourceBase):
         ]
 
     @classmethod
-    def resource_id(cls: Type[H]) -> str:
+    def resource_id(cls: Type[JsonApiResourceBase]) -> str:
         resource_ids = [
             key
             for key in cls.__annotations__.keys()
@@ -84,5 +90,5 @@ class JsonApiResource(JsonApiResourceBase):
         return resource_ids[0]
 
     @classmethod
-    def resource_name(cls: Type[H]) -> str:
+    def resource_name(cls: Type[JsonApiResourceBase]) -> str:
         return engine.plural(convert(cls.__name__))

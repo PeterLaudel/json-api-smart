@@ -1,52 +1,29 @@
 from abc import abstractmethod, ABC
-from typing import Type, TypeVar, List, Dict
-from .json_api_request import QueryTypes, JsonApiRequest
-
-H = TypeVar("H")
+from typing import Type, List
 
 
 class JsonApiResourceBase(ABC):
     @staticmethod
     @abstractmethod
     def base_url() -> str:
-        pass
+        """ base url of the resource """
 
     @classmethod
     @abstractmethod
-    def find(cls: Type[H], resource_id: int) -> H:
-        pass
+    def attributes(cls: Type["JsonApiResourceBase"]) -> List[str]:
+        """ All attributes of this resource """
 
     @classmethod
     @abstractmethod
-    def all(cls: Type[H]) -> List[H]:
-        pass
+    def relationships(cls: Type["JsonApiResourceBase"]) -> List[str]:
+        """ All relationships of this resource """
 
     @classmethod
     @abstractmethod
-    def with_params(cls: Type[H], **kwargs: QueryTypes) -> JsonApiRequest:
-        pass
+    def resource_id(cls: Type["JsonApiResourceBase"]) -> str:
+        """ Return the name of the resource id """
 
     @classmethod
     @abstractmethod
-    def where(cls: Type[H], **kwargs: QueryTypes) -> JsonApiRequest:
-        pass
-
-    @classmethod
-    @abstractmethod
-    def attributes(cls: Type[H]) -> List[str]:
-        pass
-
-    @classmethod
-    @abstractmethod
-    def relationships(cls: Type[H]) -> List[str]:
-        pass
-
-    @classmethod
-    @abstractmethod
-    def resource_id(cls: Type[H]) -> str:
-        pass
-
-    @classmethod
-    @abstractmethod
-    def resource_name(cls: Type[H]) -> str:
-        pass
+    def resource_name(cls: Type["JsonApiResourceBase"]) -> str:
+        """ The resource name which is used for url creation"""

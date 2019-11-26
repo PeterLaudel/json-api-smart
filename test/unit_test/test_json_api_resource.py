@@ -79,7 +79,7 @@ def test_base_url():
     assert Resource.base_url() == "http://some.url"
 
 
-@patch('src.json_api_resource.build_resource')
+@patch("src.json_api_resource.build_resource")
 def test_build_new_resource_from_request(build_resource_mock):
     class Resource(BaseResource):
         id: str = resource_id()
