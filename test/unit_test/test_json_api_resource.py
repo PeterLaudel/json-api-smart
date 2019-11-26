@@ -118,7 +118,7 @@ def test_resource_id_raises_error_if_no_id_exist():
         Resource.resource_id()
 
 
-def test_resource_id_raises_error_if_no_id_exist():
+def test_resource_id_returns_id_name():
     class Resource(BaseResource):
         some_id: str = resource_id()
 
