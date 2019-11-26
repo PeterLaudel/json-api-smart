@@ -78,10 +78,20 @@ def __add_attributes(
         setattr(json_api_resource, key, attribute)
 
 
+def __add_id(
+    json_api_resource: JsonApiResourceBase, json_api_call_context: JsonApiCallContext
+):
+    setattr(
+        json_api_resource,
+        json_api_resource.resource_id(),
+        json_api_call_context.get_id(),
+    )
+
+
 def build_resource(
     json_api_call_context: JsonApiCallContext, json_api_resource: JsonApiResourceBase
 ):
-    json_api_resource.id = json_api_call_context.get_id()
+    __add_id(json_api_resource, json_api_call_context)
     __add_attributes(json_api_resource, json_api_call_context)
     __add_relationships(json_api_resource, json_api_call_context)
     return json_api_resource

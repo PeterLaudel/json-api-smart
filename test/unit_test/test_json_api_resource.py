@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, Mock, ANY
 from src import JsonApiResource, attribute, resource_id, relationship
 
 
@@ -79,6 +79,17 @@ def test_base_url():
     assert Resource.base_url() == "http://some.url"
 
 
+@patch('src.json_api_resource.build_resource')
+def test_build_new_resource_from_request(build_resource_mock):
+    class Resource(BaseResource):
+        id: str = resource_id()
+
+    json_api_call_context = Mock()
+    resource = Resource(json_api_call_context=json_api_call_context)
+
+    build_resource_mock.assert_called_once_with(json_api_call_context, resource)
+
+
 def test_build_new_resource():
     class Resource(BaseResource):
         id: str = resource_id()
@@ -88,3 +99,27 @@ def test_build_new_resource():
 
     assert result.id == "42"
     assert result.attribute1 == "value"
+
+
+def test_resource_id_raises_error_if_multiple_ids_exist():
+    class Resource(BaseResource):
+        id1: str = resource_id()
+        id2: str = resource_id()
+
+    with pytest.raises(AttributeError, match=r".* one .*"):
+        Resource.resource_id()
+
+
+def test_resource_id_raises_error_if_no_id_exist():
+    class Resource(BaseResource):
+        attribute1: str = attribute()
+
+    with pytest.raises(AttributeError, match=r".* needs .*"):
+        Resource.resource_id()
+
+
+def test_resource_id_raises_error_if_no_id_exist():
+    class Resource(BaseResource):
+        some_id: str = resource_id()
+
+    assert Resource.resource_id() == "some_id"

@@ -2,6 +2,7 @@ from typing import List, Dict, Type, TypeVar, Optional
 from .json_api_request import JsonApiRequest, QueryTypes
 from .attribute import Attribute
 from .relationship import Relationship
+from .resource_id import ResourceId
 from .json_api_call_context import JsonApiCallContext
 from .json_api_resource_builder import build_resource
 from .json_api_resource_base import JsonApiResourceBase
@@ -59,12 +60,36 @@ class JsonApiResource(JsonApiResourceBase):
         ]
 
     @classmethod
+    def attributes(cls: Type[H]) -> List[str]:
+        return [
+            key
+            for key in cls.__annotations__.keys()
+            if type(getattr(cls, key)) is Attribute
+        ]
+
+    @classmethod
     def relationships(cls: Type[H]) -> List[str]:
         return [
             key
-            for key, value in cls.__annotations__.items()
+            for key in cls.__annotations__.keys()
             if type(getattr(cls, key)) is Relationship
         ]
+
+    @classmethod
+    def resource_id(cls: Type[H]) -> str:
+        resource_ids = [
+            key
+            for key in cls.__annotations__.keys()
+            if type(getattr(cls, key)) is ResourceId
+        ]
+
+        if len(resource_ids) > 1:
+            raise AttributeError("Only one resource id per resource object allowed")
+
+        if len(resource_ids) == 0:
+            raise AttributeError("Resource object needs a defined resource id")
+
+        return resource_ids[0]
 
     @classmethod
     def resource_name(cls: Type[H]) -> str:

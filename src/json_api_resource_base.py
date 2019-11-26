@@ -43,5 +43,10 @@ class JsonApiResourceBase(ABC):
 
     @classmethod
     @abstractmethod
+    def resource_id(cls: Type[H]) -> str:
+        pass
+
+    @classmethod
+    @abstractmethod
     def resource_name(cls: Type[H]) -> str:
         pass
