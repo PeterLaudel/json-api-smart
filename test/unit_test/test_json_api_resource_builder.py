@@ -51,7 +51,7 @@ def test_builds_resource_with_relationship_not_in_included():
                 },
             }
         ),
-        Resource()
+        Resource(),
     )
 
     assert result.relationship1.id == "42"
@@ -82,7 +82,7 @@ def test_build_resource_with_relationship():
                 }
             ],
         ),
-        Resource()
+        Resource(),
     )
 
     assert result.relationship1.id == "42"
@@ -101,7 +101,7 @@ def test_build_resource_with_optional_relationship():
         JsonApiCallContext(
             data={"id": "100", "relationships": {"relationship1": {"data": None}}}
         ),
-        Resource()
+        Resource(),
     )
 
     assert result.relationship1 is None
@@ -120,7 +120,7 @@ def test_build_resource_with_non_optional_relationship_raise_error():
             JsonApiCallContext(
                 data={"id": "100", "relationships": {"relationship1": {"data": None}}}
             ),
-            Resource()
+            Resource(),
         )
 
 
@@ -134,8 +134,5 @@ def test_build_resource_raises_if_relationship_is_not_optional():
 
     with pytest.raises(ValueError, match=r".* relationship1 .*"):
         build_resource(
-            JsonApiCallContext(
-                data={"id": "100", "relationships": {}}
-            ),
-            Resource()
+            JsonApiCallContext(data={"id": "100", "relationships": {}}), Resource()
         )
