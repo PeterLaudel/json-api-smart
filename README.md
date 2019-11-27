@@ -71,8 +71,8 @@ article.id # 101
 article.title # JSON:API paints my bikeshed!
 article.number # 1
 article.some_optional # None
-article.author.id = "9"
-article.author.first_name = "Dan"
+article.author.id # "9"
+article.author.first_name # "Dan"
 ````
 
 
