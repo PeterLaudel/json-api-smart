@@ -1,5 +1,6 @@
 import pytest
 from typing import Optional
+from datetime import date
 from src import JsonApiResource, resource_id, attribute, relationship
 from src.json_api_call_context import JsonApiCallContext
 from src.json_api_resource_builder import build_resource
@@ -31,6 +32,31 @@ def test_builds_resource_with_attributes():
     )
 
     assert result.attribute1 == "value"
+
+
+def test_builds_resource_with_decoded_attributes():
+    class Resource(BaseResource):
+        id: str = resource_id()
+        attribute1: date = attribute(decoder=date.fromisoformat)
+
+    result = build_resource(
+        JsonApiCallContext(data={"id": "42", "attributes": {"attribute1": "2019-07-04"}}),
+        Resource(),
+    )
+
+    assert result.attribute1 == date(2019, 7, 4)
+
+
+def test_builds_resource_raises_type_error():
+    class Resource(BaseResource):
+        id: str = resource_id()
+        attribute1: str = attribute()
+
+    with pytest.raises(TypeError, match=r".* attribute1 .*"):
+        build_resource(
+            JsonApiCallContext(data={"id": "42", "attributes": {"attribute1": 1}}),
+            Resource(),
+        )
 
 
 def test_builds_resource_with_relationship_not_in_included():

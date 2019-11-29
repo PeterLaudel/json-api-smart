@@ -1,5 +1,8 @@
 from typing import Dict, Optional, List
-from .attribute import MISSING
+
+
+class MISSING:
+    pass
 
 
 class JsonApiCallContext:

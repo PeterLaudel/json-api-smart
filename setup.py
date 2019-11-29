@@ -9,6 +9,6 @@ setup(
     author="Nilsson",
     author_email="",
     description="",
-    install_requires=["requests", "inflect"],
+    install_requires=["requests", "inflect", "typeguard"],
     extras_require={"dev": ["pytest", "requests_mock", "coverage", "mypy"]},
 )

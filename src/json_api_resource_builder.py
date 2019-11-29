@@ -1,6 +1,7 @@
 from .json_api_call_context import JsonApiCallContext
 from .json_api_resource_base import JsonApiResourceBase
 from .type_utils import is_optional, is_list
+from typeguard import check_type
 
 
 def __add_relationship_list(
@@ -71,10 +72,14 @@ def __add_attributes(
 ):
     for key in json_api_resource.attributes():
         attribute_config = getattr(json_api_resource, key)
+        attribute = json_api_call_context.get_attribute(key)
+
+        if attribute_config.decoder is not None:
+            attribute = attribute_config.decoder(attribute)
+
         value = json_api_resource.__annotations__[key]
-        attribute = attribute_config.handle_value(
-            json_api_call_context.get_attribute(key), value
-        )
+        check_type(key, attribute, value)
+
         setattr(json_api_resource, key, attribute)
 
 

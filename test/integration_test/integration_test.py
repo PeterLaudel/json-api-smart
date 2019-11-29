@@ -27,9 +27,9 @@ class Article(BaseResource):
     id: str = resource_id()
     title: str = attribute()
     number: int = attribute()
-    some_date: date = attribute(decoder=date.fromisoformat, encoder=date.isoformat)
+    some_date: date = attribute(decoder=date.fromisoformat)
     comments: List[Comment] = relationship()
-    some_optional: Optional[int] = attribute(default=None)
+    some_optional: Optional[int] = attribute()
     author: People = relationship()
 
 

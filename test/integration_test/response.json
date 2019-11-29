@@ -10,7 +10,8 @@
     "attributes": {
       "title": "JSON:API paints my bikeshed!",
       "number": 1,
-      "some_date": "2019-07-03"
+      "some_date": "2019-07-03",
+      "some_optional": null
     },
     "relationships": {
       "author": {
