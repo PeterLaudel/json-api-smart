@@ -1,13 +1,17 @@
 language: python
 python:
-  - "3.7"
-# command to install dependencies
+- '3.7'
 install:
-  - pip install -e .[dev]
-  - pip install coveralls
-# command to run tests
+- pip install -e .[dev]
+- pip install coveralls
 script:
-  - pytest
-  - coverage run --source=src -m pytest
+- pytest
+- coverage run --source=src -m pytest
+deploy:
+  provider: pypi
+  edge: true
+  username: NilssonPL
+  password:
+    secure: 2Gnvf8QlNqvd6Dl/qCTBxWw/Ee7dzrj/yeRXooMj/lGmCt7kP0gP3GP5wIeuRr0iicsm6h0YOXVApD4OdLm+5IZiLkH+lasdT8RAZmohMN2rw/YvXmVxi6UjyIQKosoCeNGMD+nAE15mWjKNGWjKcnMKWrk/NQHQhSIgFCrY0hKCpgIR3e3Wc7upCrxCdxCwZeoxSxMYV+Yx43HqRgP0+Z5SE6jUhcGs2pc0ahAJNlh/1q6oEA6faspH9t2/CEAxMMR+WEaANz2LWtqCMQF6RlGkk8UhejRaZoQ+qPHqk8vrrE6Ei+KSq9ld0W79KEdD9Q6WvgfGUTWEqaohPZ+j5p+V7g/CCp5mPaJRKRuAXy37IRWNaHC66Ub/5HLdzSjM7JZFCa8kvGdFIyoJMKwJH2W8YXenu2+NsV1jjNr9TueZHoeMvXVQwwVRn/MUUPdD1FiQ4sCnfEkFU7l02oFn1HFVVTfp0kLk9HWbV70BojSUtzp0Ww3wLngtGSWmPElBoco8xZyHXCezpNVXf0WU+Vb3vwYOIIiJHb9INqGpjorQNjt0xSXSiWCtcj+Pn1J1B98xSx7+uOyQkzb6DL7M/M7vjJ9mwdiSF/PyQBLLiY7LkcJV+YQSQkp9Wm1t4j0SMR8MX1nrVu07+wVrXTI8Hw/VgKaq8PYn5pQOsSvnJc8=
 after_success:
-  - coveralls
+- coveralls

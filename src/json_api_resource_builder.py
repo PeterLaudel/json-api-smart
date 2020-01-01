@@ -1,13 +1,25 @@
 from .json_api_call_context import JsonApiCallContext
 from .json_api_resource_base import JsonApiResourceBase
 from .type_utils import is_optional, is_list
+from typing import ForwardRef
 from typeguard import check_type
+from .json_api_resource_base import JsonApiResourceBase
+
+
+def all_subclasses(cls=JsonApiResourceBase):
+    return set(cls.__subclasses__()).union(
+        [s for c in cls.__subclasses__() for s in all_subclasses(c)]
+    )
+
+
+def base_classes():
+    return {subclass.__name__: subclass for subclass in all_subclasses()}
 
 
 def __add_relationship_list(
-    key: str,
-    json_api_resource: JsonApiResourceBase,
-    json_api_call_context: JsonApiCallContext,
+        key: str,
+        json_api_resource: JsonApiResourceBase,
+        json_api_call_context: JsonApiCallContext,
 ):
     relationship_entry = json_api_call_context.get_relationship(key)
     if relationship_entry is None:
@@ -18,20 +30,24 @@ def __add_relationship_list(
             relationship["type"], relationship["id"]
         )
         value = json_api_resource.__annotations__[key]
+        final_type = value.__args__[0]
+        if type(final_type) is ForwardRef:
+            final_type = base_classes()[final_type.__forward_arg__]
+
         if include is not None:
             relationship_list.append(
-                value.__args__[0](JsonApiCallContext(data=include))
+                final_type(JsonApiCallContext(data=include))
             )
         else:
-            relationship_list.append(value.__args__[0](id=relationship["id"]))
+            relationship_list.append(final_type(id=relationship["id"]))
 
     setattr(json_api_resource, key, relationship_list)
 
 
 def __add_relationship(
-    key: str,
-    json_api_resource: JsonApiResourceBase,
-    json_api_call_context: JsonApiCallContext,
+        key: str,
+        json_api_resource: JsonApiResourceBase,
+        json_api_call_context: JsonApiCallContext,
 ):
     relationship_entry = json_api_call_context.get_relationship(key)
     if relationship_entry is None:
@@ -57,7 +73,7 @@ def __add_relationship(
 
 
 def __add_relationships(
-    json_api_resource: JsonApiResourceBase, json_api_call_context: JsonApiCallContext
+        json_api_resource: JsonApiResourceBase, json_api_call_context: JsonApiCallContext
 ):
     for key in json_api_resource.relationships():
         value = json_api_resource.__annotations__[key]
@@ -68,7 +84,7 @@ def __add_relationships(
 
 
 def __add_attributes(
-    json_api_resource: JsonApiResourceBase, json_api_call_context: JsonApiCallContext
+        json_api_resource: JsonApiResourceBase, json_api_call_context: JsonApiCallContext
 ):
     for key in json_api_resource.attributes():
         attribute_config = getattr(json_api_resource, key)
@@ -84,7 +100,7 @@ def __add_attributes(
 
 
 def __add_id(
-    json_api_resource: JsonApiResourceBase, json_api_call_context: JsonApiCallContext
+        json_api_resource: JsonApiResourceBase, json_api_call_context: JsonApiCallContext
 ):
     setattr(
         json_api_resource,
@@ -94,7 +110,7 @@ def __add_id(
 
 
 def build_resource(
-    json_api_call_context: JsonApiCallContext, json_api_resource: JsonApiResourceBase
+        json_api_call_context: JsonApiCallContext, json_api_resource: JsonApiResourceBase
 ):
     __add_id(json_api_resource, json_api_call_context)
     __add_attributes(json_api_resource, json_api_call_context)

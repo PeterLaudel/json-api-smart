@@ -1,5 +1,6 @@
 from typing import Union, Sequence, Dict
 from urllib.parse import urljoin, urlencode
+from dataclasses import  dataclass
 
 QueryTypes = Union[str, int, Sequence[str], Sequence[int]]
 
