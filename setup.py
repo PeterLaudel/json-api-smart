@@ -4,7 +4,7 @@ setup(
     name="json-api-smart",
     version="0.0.1b",
     packages=["src"],
-    url="",
+    url="https://github.com/NilssonPL/json-api-smart",
     license="MIT",
     author="Nilsson",
     author_email="peter.laudel@gmail.com",
@@ -12,5 +12,4 @@ setup(
     install_requires=["requests", "inflect", "typeguard"],
     extras_require={"dev": ["pytest", "requests_mock", "coverage", "mypy"]},
     keywords="json:api api json rest resources",
-    url="https://github.com/NilssonPL/json-api-smart",
 )
