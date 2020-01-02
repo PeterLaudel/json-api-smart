@@ -7,7 +7,7 @@ on [JSON:API](https://jsonapi.org/).
 
 ```python
 class BaseResource(JsonApiResource):
-    @classmethod
+    @staticmethod
     def base_url(cls) -> str:
         return "http://baseurl.com/"
 
