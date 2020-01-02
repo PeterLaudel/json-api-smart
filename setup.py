@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="json-api-smart",
-    version="0.0.1b",
+    version="0.0.2b",
     packages=["src"],
     url="https://github.com/NilssonPL/json-api-smart",
     license="MIT",
