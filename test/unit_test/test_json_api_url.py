@@ -1,5 +1,4 @@
 from src.json_api_url import JsonApiUrl
-from urllib.parse import quote
 
 
 def test_find_url():

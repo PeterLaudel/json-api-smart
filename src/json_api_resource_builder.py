@@ -53,9 +53,11 @@ def __add_relationship(
     if relationship_entry is None:
         raise ValueError("The relationship %s is missing" % key)
 
-    value = json_api_resource.__annotations__[key]
+    final_type = json_api_resource.__annotations__[key]
+    if type(final_type) is ForwardRef:
+        final_type = base_classes()[final_type.__forward_arg__]
     if relationship_entry["data"] is None:
-        if is_optional(value):
+        if is_optional(final_type):
             setattr(json_api_resource, key, None)
             return
         else:
@@ -64,12 +66,12 @@ def __add_relationship(
             )
 
     include = json_api_call_context.find_in_included(
-        value.resource_name(), relationship_entry["data"]["id"]
+        final_type.resource_name(), relationship_entry["data"]["id"]
     )
     if include is not None:
-        setattr(json_api_resource, key, value(JsonApiCallContext(data=include)))
+        setattr(json_api_resource, key, final_type(JsonApiCallContext(data=include)))
     else:
-        setattr(json_api_resource, key, value(id=relationship_entry["data"]["id"]))
+        setattr(json_api_resource, key, final_type(id=relationship_entry["data"]["id"]))
 
 
 def __add_relationships(

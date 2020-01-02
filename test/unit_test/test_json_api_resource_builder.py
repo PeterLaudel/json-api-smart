@@ -1,6 +1,7 @@
 import pytest
 from typing import Optional
 from datetime import date
+from typing import ForwardRef
 from src import JsonApiResource, resource_id, attribute, relationship
 from src.json_api_call_context import JsonApiCallContext
 from src.json_api_resource_builder import build_resource
@@ -162,3 +163,27 @@ def test_build_resource_raises_if_relationship_is_not_optional():
         build_resource(
             JsonApiCallContext(data={"id": "100", "relationships": {}}), Resource()
         )
+
+def test_build_resource_with_cyclic_dependency():
+
+    class Resource(BaseResource):
+        id: str = resource_id()
+        relationship1: ForwardRef("Relationship") = relationship()
+
+    class Relationshup(BaseResource):
+        id: str = resource_id()
+
+    result = build_resource(
+        JsonApiCallContext(
+            data={
+                "id": "100",
+                "relationships": {
+                    "relationship1": {"data": {"id": "42", "type": "relationships"}}
+                },
+            }
+        ),
+        Resource(),
+    )
+
+    assert result.relationship1.id == "42"
+
