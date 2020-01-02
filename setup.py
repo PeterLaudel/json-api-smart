@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setup(
     name="json-api-smart",
-    version="0.0.3b",
+    version="0.0.4b",
     packages=["src"],
     url="https://github.com/NilssonPL/json-api-smart",
     license="MIT",
