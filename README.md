@@ -2,7 +2,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/NilssonPL/json-api-smart/badge.svg?branch=master)](https://coveralls.io/github/NilssonPL/json-api-smart?branch=master)
 # Json API Smart
 
-Json Api smart is your smart json api client.
+Is your client library which support ths JSON:API standard specified
+on [JSON:API](https://jsonapi.org/).
 
 ```python
 class BaseResource(JsonApiResource):
