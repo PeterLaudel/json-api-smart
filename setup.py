@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open('README.md') as f:
     long_description = f.read()
@@ -6,7 +6,8 @@ with open('README.md') as f:
 setup(
     name="json-api-smart",
     version="0.0.5",
-    packages=["src"],
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     url="https://github.com/NilssonPL/json-api-smart",
     license="MIT",
     author="Nilsson",
